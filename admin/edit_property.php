@@ -11,12 +11,25 @@ $stmt = $pdo->prepare("SELECT * FROM properties WHERE id = ?");
 $stmt->execute([$id]);
 $property = $stmt->fetch();
 
+// Fetch existing images for this property
+$stmt = $pdo->prepare("SELECT * FROM property_images WHERE property_id = ?");
+$stmt->execute([$id]);
+$images = $stmt->fetchAll();
+
 if (!$property || ($_SESSION['role'] !== 'super_admin' && $property['agent_id'] != $agent_id)) {
     die("Unauthorized access.");
-}
+} 
 
 $error = '';
 $success = '';
+
+// Show messages from image delete and update
+if (isset($_GET['img_deleted'])) {
+    $success = 'Image deleted successfully.';
+}
+if (isset($_GET['updated'])) {
+    $success = 'Property updated successfully.';
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = $_POST['title'] ?? '';
@@ -26,11 +39,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $type = $_POST['type'] ?? '';
     $status = $_POST['status'] ?? 'available';
 
+    // Image upload settings (same as add_property)
+    $allowedExt = ['jpg', 'jpeg', 'png', 'webp'];
+    $maxSize    = 2 * 1024 * 1024;
+    $upload_dir = __DIR__ . '/../assets/uploads/properties/';
+
     if ($title && $price && $location && $type) {
         $stmt = $pdo->prepare("UPDATE properties SET title = ?, price = ?, location = ?, description = ?, type = ?, status = ? WHERE id = ?");
         if ($stmt->execute([$title, $price, $location, $description, $type, $status, $id])) {
+            // Handle image replacement when new images are uploaded (replaces existing images)
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+
+            $uploadedFiles = [];
+            $uploadErrors = [];
+
+            if (!empty($_FILES['images']['name'][0])) {
+                foreach ($_FILES['images']['name'] as $key => $name) {
+                    if (count($uploadedFiles) >= 3) break; // max 3 images
+                    $tmp_name = $_FILES['images']['tmp_name'][$key];
+                    $size     = $_FILES['images']['size'][$key];
+                    $ext      = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+
+                    if (!in_array($ext, $allowedExt)) {
+                        $uploadErrors[] = htmlspecialchars($name) . ' - invalid file type.';
+                        continue;
+                    }
+                    if ($size > $maxSize) {
+                        $uploadErrors[] = htmlspecialchars($name) . ' - file too large.';
+                        continue;
+                    }
+
+                    $new_name = uniqid('prop_', true) . '.' . $ext;
+                    $target   = $upload_dir . $new_name;
+
+                    if (move_uploaded_file($tmp_name, $target)) {
+                        $uploadedFiles[] = $new_name;
+                    } else {
+                        $uploadErrors[] = htmlspecialchars($name) . ' - failed to move uploaded file.';
+                    }
+                }
+
+                // If at least one new file uploaded successfully, replace existing images
+                if (!empty($uploadedFiles)) {
+                    // fetch old images
+                    $oldStmt = $pdo->prepare("SELECT image_path FROM property_images WHERE property_id = ?");
+                    $oldStmt->execute([$id]);
+                    $oldImgs = $oldStmt->fetchAll();
+
+                    // delete old files from disk
+                    foreach ($oldImgs as $old) {
+                        $oldPath = $upload_dir . $old['image_path'];
+                        if (file_exists($oldPath)) @unlink($oldPath);
+                    }
+
+                    // remove old DB records
+                    $del = $pdo->prepare("DELETE FROM property_images WHERE property_id = ?");
+                    $del->execute([$id]);
+
+                    // insert uploaded files into DB
+                    $stmtImg = $pdo->prepare("INSERT INTO property_images (property_id, image_path) VALUES (?, ?)");
+                    foreach ($uploadedFiles as $f) {
+                        $stmtImg->execute([$id, $f]);
+                    }
+                }
+            }
+
+            // Refresh images list so changes are visible
+            $stmt = $pdo->prepare("SELECT * FROM property_images WHERE property_id = ?");
+            $stmt->execute([$id]);
+            $images = $stmt->fetchAll();
+
             $success = "Property updated successfully!";
-            header("Refresh: 2; URL=properties.php");
+            if (!empty($uploadErrors)) {
+                $error = implode('<br>', $uploadErrors);
+            }
         } else {
             $error = "Update failed.";
         }
@@ -55,7 +139,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <div class="alert alert-success"><?php echo e($success); ?></div>
             <?php endif; ?>
 
-            <form action="edit_property.php?id=<?php echo $id; ?>" method="POST">
+            <form action="edit_property.php?id=<?php echo $id; ?>" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="title">Property Title *</label>
                     <input type="text" name="title" id="title" value="<?php echo e($property['title']); ?>" required>
@@ -100,6 +184,15 @@ require_once __DIR__ . '/../includes/header.php';
                     <textarea name="description" id="description"
                         rows="5"><?php echo e($property['description']); ?></textarea>
                 </div>
+
+
+
+                <div class="form-group">
+                    <label for="images">Upload Images (max 3)</label>
+                    <input type="file" name="images[]" id="images" multiple accept="image/*" class="file-input">
+                    <div id="images-preview" class="images-preview"></div>
+                </div>
+
                 <div class="mt-30">
                     <button type="submit" class="btn btn-primary w-full">Update Property</button>
                 </div>
@@ -108,4 +201,4 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

@@ -37,11 +37,11 @@ if (empty($properties)) {
     echo '<p class="no-results">No properties found matching your criteria.</p>';
 } else {
     foreach ($properties as $property) {
-        $image = !empty($property['main_image']) ? '/fsd_final/assets/uploads/properties/' . $property['main_image'] : '/fsd_final/assets/uploads/properties/default_property.png';
+        $image = !empty($property['main_image']) ? 'assets/uploads/properties/' . $property['main_image'] : 'assets/uploads/properties/default_property.png';
         ?>
         <div class="property-card">
             <div class="property-image">
-                <img src="<?php echo e($image); ?>" alt="<?php echo e($property['title']); ?>">
+                <img src="<?php echo BASE_URL; ?>/<?php echo e($image); ?>" alt="<?php echo e($property['title']); ?>">
                 <div class="property-badges">
                     <span class="badge badge-type">
                         <?php echo e($property['type']); ?>
@@ -61,7 +61,8 @@ if (empty($properties)) {
                 <div class="property-price">
                     <?php echo formatPrice($property['price']); ?>
                 </div>
-                <a href="property.php?id=<?php echo $property['id']; ?>" class="btn btn-outline w-full text-center">View Details</a>
+                <a href="property.php?id=<?php echo $property['id']; ?>" class="btn btn-outline w-full text-center">View
+                    Details</a>
             </div>
         </div>
         <?php

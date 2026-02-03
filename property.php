@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/header.php';
 
 $id = $_GET['id'] ?? 0;
 
@@ -14,7 +14,7 @@ $property = $stmt->fetch();
 
 if (!$property) {
     echo '<div class="container"><p>Property not found.</p></div>';
-    include __DIR__ . '/../includes/footer.php';
+    include __DIR__ . '/includes/footer.php';
     exit();
 }
 
@@ -44,16 +44,17 @@ $images = $stmt->fetchAll();
         <div class="property-main">
             <div class="property-gallery">
                 <?php if (empty($images)): ?>
-                    <img src="/fsd_final/assets/uploads/properties/default_property.png" alt="Property">
+                    <img src="<?php echo BASE_URL; ?>/assets/uploads/properties/default_property.png" alt="Property">
                 <?php else: ?>
                     <div class="main-image">
-                        <img src="/fsd_final/assets/uploads/properties/<?php echo e($images[0]['image_path']); ?>"
+                        <img src="<?php echo BASE_URL; ?>/assets/uploads/properties/<?php echo e($images[0]['image_path']); ?>"
                             alt="Property">
                     </div>
                     <?php if (count($images) > 1): ?>
                         <div class="thumbnail-grid">
                             <?php foreach (array_slice($images, 1) as $img): ?>
-                                <img src="/fsd_final/assets/uploads/properties/<?php echo e($img['image_path']); ?>" alt="Property">
+                                <img src="<?php echo BASE_URL; ?>/assets/uploads/properties/<?php echo e($img['image_path']); ?>"
+                                    alt="Property">
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
@@ -90,7 +91,7 @@ $images = $stmt->fetchAll();
             <div class="agent-card">
                 <h3>Contact Agent</h3>
                 <div class="agent-info">
-                    <img src="/fsd_final/assets/uploads/agents/<?php echo e($property['agent_image']); ?>"
+                    <img src="<?php echo BASE_URL; ?>/assets/uploads/agents/<?php echo e($property['agent_image']); ?>"
                         onerror="this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($property['full_name']); ?>'"
                         alt="Agent">
                     <div>
@@ -133,7 +134,7 @@ $images = $stmt->fetchAll();
         statusDiv.innerHTML = 'Sending...';
 
         try {
-            const response = await fetch('/fsd_final/ajax/send_enquiry.php', {
+            const response = await fetch(`${BASE_URL}/ajax/send_enquiry.php`, {
                 method: 'POST',
                 body: formData
             });
@@ -151,4 +152,4 @@ $images = $stmt->fetchAll();
     });
 </script>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>

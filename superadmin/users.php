@@ -31,7 +31,7 @@ $agents = $stmt->fetchAll();
                 <tbody>
                     <?php foreach ($agents as $agent): ?>
                         <tr>
-                            <td><img src="/fsd_final/assets/uploads/agents/<?php echo e($agent['image']); ?>"
+                            <td><img src="<?php echo BASE_URL; ?>/assets/uploads/agents/<?php echo e($agent['image']); ?>"
                                     onerror="this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($agent['full_name']); ?>'"
                                     class="avatar-sm"></td>
                             <td><?php echo e($agent['full_name']); ?></td>
@@ -59,4 +59,4 @@ $agents = $stmt->fetchAll();
     </div>
 </div>
 
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

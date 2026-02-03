@@ -139,7 +139,7 @@ ul {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 1050;
+    z-index: 998;
 }
 
 /* Hero Section */
@@ -174,7 +174,7 @@ ul {
 /* Property Details Page */
 .property-details-page .container {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 2fr 1fr;
     gap: 30px;
 }
 
@@ -246,6 +246,8 @@ ul {
     padding: 25px;
     border-radius: 12px;
     box-shadow: var(--shadow);
+    position: sticky;
+    top: 100px;
 }
 
 .agent-info {
@@ -279,8 +281,19 @@ ul {
 }
 
 @media (max-width: 992px) {
+    .property-details-page .container {
+        grid-template-columns: 1fr;
+    }
 
-    /* Removed grid-row reversal for property-sidebar and property-main */
+    .property-sidebar {
+        grid-row: 1;
+        /* Move agent card to top on mobile/tablet */
+    }
+
+    .property-main {
+        grid-row: 2;
+    }
+
     .agent-card {
         position: static;
         margin-bottom: 30px;
@@ -349,6 +362,42 @@ ul {
 .file-input:hover {
     border-color: var(--primary-color) !important;
 }
+
+/* Image management (admin edit page) */
+.image-list {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.image-item {
+    background: var(--white);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+
+.image-actions form {
+    display: inline-block;
+    margin: 0 4px;
+}
+
+.images-preview {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.thumb-item img {
+    border-radius: 6px;
+    object-fit: cover;
+}
+
 
 /* Property Grid */
 .section-padding {
@@ -643,8 +692,20 @@ ul {
 .main-footer {
     background: var(--dark-color);
     color: var(--white);
-    padding: 30px 0;
+    padding: 20px 0;
     text-align: center;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 -2px 6px rgba(0,0,0,0.08);
+}
+
+/* Ensure page content doesn't get hidden under the fixed footer */
+main {
+    padding-bottom: 100px;
 }
 
 .main-footer p {
@@ -759,7 +820,7 @@ ul {
         width: 280px;
         height: 100%;
         background: var(--white);
-        z-index: 1100;
+        z-index: 999;
         padding: 50px 30px;
         transition: 0.4s ease;
         box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);

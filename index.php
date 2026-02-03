@@ -1,7 +1,11 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/header.php';
+// Production Error Handling
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+error_reporting(E_ALL); // Log everything, but display nothing
+require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/header.php';
 ?>
 
 <section class="hero">
@@ -64,13 +68,21 @@ require_once __DIR__ . '/../includes/header.php';
             propertyList.innerHTML = '<div class="loader">Loading properties...</div>';
 
             const params = new URLSearchParams(filters);
+            // Use a relative URL to avoid cross-origin/protocol issues with BASE_URL
+            const url = `ajax/search_properties.php?${params.toString()}`;
             try {
-                const response = await fetch(`/fsd_final/ajax/search_properties.php?${params.toString()}`);
+                const response = await fetch(url, { credentials: 'same-origin' });
+                if (!response.ok) {
+                    const text = await response.text();
+                    console.error('Server error loading properties:', response.status, text);
+                    propertyList.innerHTML = `<p>Error loading properties (server ${response.status}). Please try again.</p>`;
+                    return;
+                }
                 const data = await response.text();
                 propertyList.innerHTML = data;
             } catch (error) {
-                console.error('Error fetching properties:', error);
-                propertyList.innerHTML = '<p>Error loading properties. Please try again.</p>';
+                console.error('Network error fetching properties:', error);
+                propertyList.innerHTML = '<p>Error loading properties. Please check your network or open the console for details.</p>';
             }
         };
 
@@ -86,4 +98,4 @@ require_once __DIR__ . '/../includes/header.php';
     });
 </script>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>

@@ -35,29 +35,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileOverlay = document.getElementById('mobile-overlay');
 
     if (menuToggle && navMenu && mobileOverlay) {
-        const toggleIcon = menuToggle.querySelector('i');
-
         menuToggle.addEventListener('click', () => {
-            const isActive = navMenu.classList.toggle('active');
+            navMenu.classList.toggle('active');
             mobileOverlay.classList.toggle('active');
-
-            if (isActive) {
-                toggleIcon.classList.remove('fa-bars');
-                toggleIcon.classList.add('fa-times');
-                document.body.style.overflow = 'hidden';
-            } else {
-                toggleIcon.classList.remove('fa-times');
-                toggleIcon.classList.add('fa-bars');
-                document.body.style.overflow = '';
-            }
+            document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
         });
 
         mobileOverlay.addEventListener('click', () => {
             navMenu.classList.remove('active');
             mobileOverlay.classList.remove('active');
-            toggleIcon.classList.remove('fa-times');
-            toggleIcon.classList.add('fa-bars');
             document.body.style.overflow = '';
+        });
+    }
+
+
+
+    // Multiple files preview for additional images
+    const imagesInput = document.getElementById('images');
+    const imagesPreview = document.getElementById('images-preview');
+    if (imagesInput && imagesPreview) {
+        imagesInput.addEventListener('change', (e) => {
+            imagesPreview.innerHTML = '';
+            const files = Array.from(e.target.files).slice(0, 3);
+            files.forEach(file => {
+                const reader = new FileReader();
+                const wrap = document.createElement('div');
+                wrap.className = 'thumb-item';
+                const img = document.createElement('img');
+                img.width = 120;
+                img.alt = 'preview';
+                reader.onload = function(ev) {
+                    img.src = ev.target.result;
+                }
+                reader.readAsDataURL(file);
+                wrap.appendChild(img);
+                imagesPreview.appendChild(wrap);
+            });
         });
     }
 });

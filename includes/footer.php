@@ -4,7 +4,7 @@
         <p>&copy; 2026 Real Estate Platform. All rights reserved.</p>
     </div>
 </footer>
-<script src="/fsd_final/assets/js/main.js"></script>
+<script src="<?php echo BASE_URL; ?>/assets/js/main.js"></script>
 </body>
 
 </html>

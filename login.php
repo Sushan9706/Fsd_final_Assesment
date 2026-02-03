@@ -1,44 +1,44 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/functions.php';
 
 session_start();
 
 if (isset($_SESSION['user_id'])) {
-    if ($_SESSION['role'] === 'super_admin') {
-        redirect('../superadmin/users.php');
-    } else {
-        redirect('../admin/dashboard.php');
-    }
+if ($_SESSION['role'] === 'super_admin') {
+redirect('superadmin/users.php');
+} else {
+redirect('admin/dashboard.php');
+}
 }
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
+$email = $_POST['email'] ?? '';
+$password = $_POST['password'] ?? '';
 
-    if ($email && $password) {
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
+if ($email && $password) {
+$stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+$stmt->execute([$email]);
+$user = $stmt->fetch();
 
-        if ($user && ($password === 'admin123' || password_verify($password, $user['password']))) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role'] = $user['role'];
-            $_SESSION['full_name'] = $user['full_name'];
+if ($user && ($password === 'admin123' || password_verify($password, $user['password']))) {
+$_SESSION['user_id'] = $user['id'];
+$_SESSION['role'] = $user['role'];
+$_SESSION['full_name'] = $user['full_name'];
 
-            if ($user['role'] === 'super_admin') {
-                redirect('../superadmin/users.php');
-            } else {
-                redirect('../admin/dashboard.php');
-            }
-        } else {
-            $error = "Invalid email or password.";
-        }
-    } else {
-        $error = "Please fill in all fields.";
-    }
+if ($user['role'] === 'super_admin') {
+redirect('superadmin/users.php');
+} else {
+redirect('admin/dashboard.php');
+}
+} else {
+$error = "Invalid email or password.";
+}
+} else {
+$error = "Please fill in all fields.";
+}
 }
 ?>
 <!DOCTYPE html>
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Real Estate Platform</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/style.css">
 </head>
 
 <body class="login-page">

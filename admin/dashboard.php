@@ -66,14 +66,12 @@ $available_properties = $pdo->query("SELECT COUNT(*) FROM properties WHERE statu
 
         <div class="dashboard-actions">
             <?php if ($_SESSION['role'] === 'super_admin'): ?>
-                <a href="../superadmin/users.php" class="btn btn-primary"><i class="fas fa-users"></i> Manage Agents</a>
                 <a href="properties.php" class="btn btn-outline"><i class="fas fa-building"></i> Manage All Properties</a>
             <?php else: ?>
-                <a href="properties.php" class="btn btn-primary"><i class="fas fa-list"></i> Manage My Properties</a>
                 <a href="add_property.php" class="btn btn-outline"><i class="fas fa-plus"></i> Add New Property</a>
             <?php endif; ?>
         </div>
     </div>
 </div>
 
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
