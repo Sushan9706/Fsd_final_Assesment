@@ -42,9 +42,8 @@ A production-ready Real Estate Listing Platform built with PHP (PDO), MySQL, and
 
 ## Login Credentials
 
-| Role | Email | Password |
-|------|-------|----------|
-| Super Admin | `admin@example.com` | `admin123` |
+email: admin@admin.com
+password: admin123
 
 *Note: Agents can be created by the Super Admin.*
 
